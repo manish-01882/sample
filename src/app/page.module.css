@@ -166,3 +166,12 @@ a.secondary {
     filter: invert();
   }
 }
+
+.chat-container {
+  max-width: 480px;
+}
+
+.chat-messages {
+  max-height: 60vh;
+  overflow-y: auto;
+}
