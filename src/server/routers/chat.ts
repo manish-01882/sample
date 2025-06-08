@@ -1,6 +1,6 @@
 import { t } from '../context';
 import { z } from 'zod';
-import { generateResponse } from '../../lib/gemini';
+import { generateResponse, generateConversationTitle } from '../../lib/gemini';
 
 export const chatRouter = t.router({
   hello: t.procedure.query(() => {
@@ -44,4 +44,35 @@ export const chatRouter = t.router({
         };
       }
     }),
+  generateTitle: t.procedure
+    .input(z.object({
+      messages: z.array(z.object({
+        content: z.string(),
+        from: z.enum(['user', 'ai'])
+      }))
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        console.log('Received title generation request with messages:', input.messages);
+        
+        if (!ctx.session?.user) {
+          console.log('Unauthorized title generation attempt');
+          return { 
+            title: 'New Conversation',
+            error: 'UNAUTHORIZED'
+          };
+        }
+
+        const title = await generateConversationTitle(input.messages);
+        console.log('Generated title:', title);
+        
+        return { title };
+      } catch (error: any) {
+        console.error('Title generation error:', error);
+        return {
+          title: 'New Conversation',
+          error: 'INTERNAL_ERROR'
+        };
+      }
+    })
 });

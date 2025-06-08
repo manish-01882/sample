@@ -8,8 +8,6 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 export async function generateResponse(prompt: string) {
   try {
-    // Note: gemini-2.0-flash is not a valid model name
-    // Using gemini-pro instead as it's the current stable model
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     const result = await model.generateContent({
@@ -27,5 +25,33 @@ export async function generateResponse(prompt: string) {
       throw new Error('Invalid model name. Please check the model configuration.');
     }
     throw new Error('Failed to generate response from Gemini: ' + (error.message || 'Unknown error'));
+  }
+}
+
+export async function generateConversationTitle(messages: { content: string; from: 'user' | 'ai' }[]) {
+  try {
+    console.log('Generating title for messages:', messages);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    
+    // Create a prompt that asks for a concise title based on the conversation
+    const conversationText = messages
+      .map(msg => `${msg.from === 'user' ? 'User' : 'AI'}: ${msg.content}`)
+      .join('\n');
+    
+    const prompt = `Based on this conversation, generate a short, descriptive title (max 5 words) that captures the main topic or theme. Only respond with the title, nothing else.\n\nConversation:\n${conversationText}`;
+    
+    console.log('Title generation prompt:', prompt);
+    
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
+    
+    const response = await result.response;
+    const title = response.text().trim();
+    console.log('Generated title:', title);
+    return title;
+  } catch (error: any) {
+    console.error('Error generating conversation title:', error);
+    return 'New Conversation';
   }
 } 
