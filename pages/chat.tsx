@@ -136,8 +136,8 @@ export default function ChatPage() {
     setError(null);
 
     try {
-      // If in image mode, prepend "generate image of" to the message
-      const messageText = imageMode ? `generate image of ${input}` : input;
+      // If in image mode, just use the input as the message (no prefix)
+      const messageText = imageMode ? input : input;
       
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -327,7 +327,7 @@ export default function ChatPage() {
               )}
               <div className="text-truncate">
                 <div className="fw-bold">{user.name}</div>
-                <small className="text-muted">{user.email}</small>
+                <small className="text-muted">{user.email?.split('@')[0] || 'Not signed in'}</small>
               </div>
             </div>
           )}
@@ -387,8 +387,9 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            messages.map(msg => (
+            messages.map((msg) => (
               <div key={msg.id} className="mb-4">
+                {/* User message */}
                 <div className="d-flex justify-content-end mb-2">
                   <div 
                     className="message user-message p-3 rounded"
@@ -396,16 +397,40 @@ export default function ChatPage() {
                       backgroundColor: '#007bff',
                       color: 'white',
                       maxWidth: '75%',
+                      width: 'fit-content',
                       boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                     }}
                   >
                     <div style={{ whiteSpace: 'pre-wrap' }}>{msg.message}</div>
-                    <small className="d-block text-end mt-1" style={{ opacity: 0.8 }}>
-                      {new Date(msg.created_at).toLocaleTimeString()}
-                    </small>
                   </div>
                 </div>
                 
+                {/* AI response: image and text as siblings, not in the same div */}
+                {msg.response_type === 'image' && msg.image_url && (
+                  <div className="d-flex justify-content-start mb-2">
+                    <div 
+                      className="message ai-message p-3 rounded"
+                      style={{
+                        backgroundColor: 'white',
+                        color: '#212529',
+                        maxWidth: '512px',
+                        width: 'fit-content',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                        border: '1px solid #e9ecef',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <img
+                        src={msg.image_url}
+                        alt="Generated image"
+                        className="img-fluid rounded"
+                        style={{ maxWidth: '100%', display: 'block' }}
+                      />
+                    </div>
+                  </div>
+                )}
                 {msg.response && (
                   <div className="d-flex justify-content-start">
                     <div 
@@ -414,6 +439,7 @@ export default function ChatPage() {
                         backgroundColor: 'white',
                         color: '#212529',
                         maxWidth: msg.response_type === 'image' ? '512px' : '75%',
+                        width: 'fit-content',
                         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                         border: '1px solid #e9ecef'
                       }}
@@ -422,7 +448,6 @@ export default function ChatPage() {
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            // Override pre and code block rendering to add proper styling
                             pre: ({ node, ...props }) => (
                               <pre className="bg-light p-2 rounded" {...props} />
                             ),
@@ -431,11 +456,9 @@ export default function ChatPage() {
                                 ? <code className="bg-light px-1 rounded" {...props} />
                                 : <code className="d-block bg-light p-2 rounded" {...props} />
                             ),
-                            // Style tables properly
                             table: ({ node, ...props }) => (
                               <table className="table table-bordered table-striped" {...props} />
                             ),
-                            // Style blockquotes
                             blockquote: ({ node, ...props }) => (
                               <blockquote className="blockquote border-start border-4 ps-3 text-muted" {...props} />
                             )
@@ -444,25 +467,6 @@ export default function ChatPage() {
                           {msg.response}
                         </ReactMarkdown>
                       </div>
-                      
-                      {/* Display image if this is an image response */}
-                      {msg.response_type === 'image' && msg.image_url && (
-                        <div className="mt-2">
-                          <img 
-                            src={msg.image_url} 
-                            alt="Generated image"
-                            className="img-fluid rounded"
-                            style={{ maxWidth: '100%' }}
-                          />
-                          <div className="text-center mt-1">
-                            <small className="text-muted">Generated image</small>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <small className="d-block text-end mt-1" style={{ opacity: 0.7 }}>
-                        {new Date(msg.updated_at).toLocaleTimeString()}
-                      </small>
                     </div>
                   </div>
                 )}

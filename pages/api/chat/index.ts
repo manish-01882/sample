@@ -142,15 +142,14 @@ export default withApiAuthRequired(async function handler(
           
           isImageRequest = true;
           
-          // Extract the image description - everything after "of" or the whole text if no "of"
-          let imagePrompt = messageText;
-          if (messageText.includes(" of ")) {
-            imagePrompt = messageText.split(" of ")[1];
-          } else if (messageText.includes("generate image")) {
-            imagePrompt = messageText.replace("generate image", "").trim();
-          } else if (messageText.includes("create image")) {
-            imagePrompt = messageText.replace("create image", "").trim();
-          }
+          // Improved: Remove trigger phrases and use the rest as the prompt
+          let imagePrompt = messageText
+            .replace(/^generate image( of)?/i, '')
+            .replace(/^create image( of)?/i, '')
+            .replace(/^draw( a| an| the)?/i, '')
+            .replace(/^picture of/i, '')
+            .replace(/^image of/i, '')
+            .trim();
           
           try {
             // Generate image with Gemini

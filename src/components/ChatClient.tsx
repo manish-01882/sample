@@ -503,12 +503,12 @@ export default function ChatClient() {
           </div>
         </div>
         <div className="sidebar-footer">
-          <div className="user-info">
+          <div className="user-profile">
             <div className="user-avatar">
               {auth0User?.picture ? (
-                <img src={auth0User.picture} alt={auth0User.name || 'User'} />
+                <img src={auth0User.picture} alt={auth0User.name || 'User'} className="avatar-image" />
               ) : (
-                <svg width="2rem" height="2rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -516,7 +516,7 @@ export default function ChatClient() {
             </div>
             <div className="user-details">
               <div className="user-name">{auth0User?.name || 'Guest User'}</div>
-              <div className="user-email">{auth0User?.email || 'Not signed in'}</div>
+              <div className="user-email">{auth0User?.email?.split('@')[0] || 'Not signed in'}</div>
             </div>
           </div>
           <button 
@@ -544,40 +544,76 @@ export default function ChatClient() {
               className={`message ${message.from === 'user' ? 'user-message' : 'assistant-message'}`}
             >
               {message.type === 'image' ? (
-                <div className="image-message">
-                  <img 
-                    src={message.content.url} 
-                    alt={message.content.text} 
-                    className="generated-image"
-                  />
-                  <div className="image-caption">{message.content.text}</div>
+                <div className="ai-bubble">
+                  <div className="message-content">
+                    {/* Image container */}
+                    <div className="image-message">
+                      <div className="image-container">
+                        <img 
+                          src={message.content.url} 
+                          alt={message.content.text} 
+                          className="generated-image"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                    {/* Text content */}
+                    <div className="text-content">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({node, inline, className, children, ...props}) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            return !inline && match ? (
+                              <SyntaxHighlighter
+                                style={vscDarkPlus}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}
+                              >
+                                {String(children).replace(/\n$/, '')}
+                              </SyntaxHighlighter>
+                            ) : (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
+                      >
+                        {message.content.text}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="message-content">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      code({node, inline, className, children, ...props}) {
-                        const match = /language-(\w+)/.exec(className || '');
-                        return !inline && match ? (
-                          <SyntaxHighlighter
-                            style={vscDarkPlus}
-                            language={match[1]}
-                            PreTag="div"
-                            {...props}
-                          >
-                            {String(children).replace(/\n$/, '')}
-                          </SyntaxHighlighter>
-                        ) : (
-                          <code className={className} {...props}>
-                            {children}
-                          </code>
-                        );
-                      }
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+                <div className={message.from === 'user' ? 'user-bubble' : 'ai-bubble'}>
+                  <div className="message-content">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({node, inline, className, children, ...props}) {
+                          const match = /language-(\w+)/.exec(className || '');
+                          return !inline && match ? (
+                            <SyntaxHighlighter
+                              style={vscDarkPlus}
+                              language={match[1]}
+                              PreTag="div"
+                              {...props}
+                            >
+                              {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                          ) : (
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
             </div>
