@@ -1,0 +1,48 @@
+/* Add your global styles here */
+body {
+  background: #f8f9fa;
+}
+
+/* ChatClient styles */
+.chat-container {
+  max-width: 600px;
+}
+.chat-area {
+  min-height: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #f5f5f5;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: max-height 0.2s;
+}
+.chat-area.expanded {
+  max-height: 600px;
+}
+.chat-bubble {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  max-width: 70%;
+  word-break: break-word;
+}
+.chat-bubble-user {
+  background: #0d6efd;
+  color: #fff;
+  margin-left: auto;
+}
+.chat-bubble-ai {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  color: #222;
+  margin-right: auto;
+}
+.chat-bubble-error {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+}
+.chat-avatar {
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+}
