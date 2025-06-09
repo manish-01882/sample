@@ -5,7 +5,9 @@ interface EmojiPickerProps {
   onClose: () => void;
 }
 
-const EMOJI_CATEGORIES = {
+type CategoryKeys = 'Smileys & People' | 'Animals & Nature' | 'Food & Drink' | 'Activities' | 'Objects';
+
+const EMOJI_CATEGORIES: Record<CategoryKeys, string[]> = {
   'Smileys & People': ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'],
   'Animals & Nature': ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄'],
   'Food & Drink': ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅', '🥔'],
@@ -14,7 +16,7 @@ const EMOJI_CATEGORIES = {
 };
 
 export default function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
-  const [selectedCategory, setSelectedCategory] = useState(Object.keys(EMOJI_CATEGORIES)[0]);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKeys>('Smileys & People');
   const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,9 +51,9 @@ export default function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
           <button
             key={category}
             className={`btn btn-sm ${selectedCategory === category ? 'btn-primary' : 'btn-outline-secondary'}`}
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => setSelectedCategory(category as CategoryKeys)}
           >
-            {EMOJI_CATEGORIES[category][0]}
+            {EMOJI_CATEGORIES[category as CategoryKeys][0]}
           </button>
         ))}
       </div>

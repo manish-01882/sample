@@ -14,13 +14,9 @@ export const imageRouter = t.router({
           model: 'gemini-2.0-flash-preview-image-generation',
         });
 
-        // Request both IMAGE and TEXT explicitly in the generation config
+        // Request image generation from the model
         const result = await model.generateContent({
-          contents: [{ role: 'user', parts: [{ text: input.prompt }] }],
-          generationConfig: {
-            // Request both modalities in the order specified by the error (IMAGE, TEXT)
-            responseModalities: ['IMAGE', 'TEXT'],
-          },
+          contents: [{ role: 'user', parts: [{ text: input.prompt }] }]
         });
 
         // Wait for response and process it

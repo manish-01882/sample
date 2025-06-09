@@ -71,11 +71,13 @@ export default withApiAuthRequired(async function handler(
       
       try {
         // Direct query through Supabase
-        await supabaseAdmin.rpc('pgtsql_query', { 
-          query: createTableQuery 
-        }).catch(err => {
+        try {
+          await supabaseAdmin.rpc('pgtsql_query', { 
+            query: createTableQuery 
+          });
+        } catch (err) {
           console.log("Can't create table automatically. Please run the SQL manually:", err);
-        });
+        }
       } catch (err) {
         console.error("Error creating table:", err);
       }

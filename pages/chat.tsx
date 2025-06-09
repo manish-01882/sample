@@ -451,8 +451,8 @@ export default function ChatPage() {
                             pre: ({ node, ...props }) => (
                               <pre className="bg-light p-2 rounded" {...props} />
                             ),
-                            code: ({ node, inline, ...props }) => (
-                              inline 
+                            code: ({ node, ...props }: any) => (
+                              props.inline 
                                 ? <code className="bg-light px-1 rounded" {...props} />
                                 : <code className="d-block bg-light p-2 rounded" {...props} />
                             ),
